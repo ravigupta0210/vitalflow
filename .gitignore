@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+
+# Environment files (NEVER commit secrets)
+.env
+.env.local
+.env.production
+
+# Database
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Build output
+frontend/dist/
+frontend/android/
+frontend/ios/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
