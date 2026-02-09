@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
 import useSWR, { SWRConfig, useSWRConfig } from 'swr'
-import api, { prefetch } from '../services/api'
+import api from '../services/api'
 import { useAuth } from './AuthContext'
 
 const HealthContext = createContext(null)
@@ -52,15 +52,7 @@ export function HealthProvider({ children }) {
     previousUserIdRef.current = currentUserId
   }, [user?.id, cache, globalMutate])
 
-  // Prefetch common data on auth change
-  useEffect(() => {
-    if (isAuthenticated && isOnboarded && user?.id) {
-      // Prefetch dashboard data in background
-      prefetch('/dashboard')
-      prefetch('/dashboard/insights')
-      prefetch('/profile')
-    }
-  }, [isAuthenticated, isOnboarded, user?.id])
+  // SWR's own dedupingInterval handles dedup - no manual prefetch needed
 
   // Dashboard data - only fetch when authenticated and onboarded
   const { data: dashboardData, mutate: mutateDashboard, isLoading: dashboardLoading } = useSWR(

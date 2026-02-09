@@ -39,11 +39,11 @@ function MealCard({ meal, onComplete, isCompleted }) {
         </div>
         <div className="flex items-center gap-2">
           {!isCompleted && (
-            <button onClick={onComplete} className="p-2 rounded-lg bg-success/20 hover:bg-success/30 text-success transition-all">
+            <button onClick={onComplete} aria-label="Mark meal as complete" className="p-2 rounded-lg bg-success/20 hover:bg-success/30 text-success transition-all">
               <Check className="w-5 h-5" />
             </button>
           )}
-          <button onClick={() => setExpanded(!expanded)} className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 transition-all">
+          <button onClick={() => setExpanded(!expanded)} aria-label="Toggle meal details" className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 transition-all">
             {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
         </div>
@@ -104,7 +104,7 @@ function MacroRing({ label, current, target, color }) {
   return (
     <div className="text-center">
       <div className="relative inline-flex items-center justify-center">
-        <svg className="transform -rotate-90 w-20 h-20">
+        <svg className="transform -rotate-90 w-16 h-16 sm:w-20 sm:h-20">
           <circle className="stroke-dark-800" strokeWidth="6" fill="transparent" r={radius} cx="40" cy="40" />
           <circle className={`${colorMap[color]} transition-all duration-500`} strokeWidth="6" strokeLinecap="round"
             fill="transparent" r={radius} cx="40" cy="40" style={{ strokeDasharray: circumference, strokeDashoffset: offset }} />
@@ -131,14 +131,14 @@ function GenerateModal({ isOpen, onClose, onGenerate, isGenerating, dietType }) 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-dark-900 rounded-2xl border border-dark-700 w-full max-w-lg">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-dark-900 rounded-2xl border border-dark-700 w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-300">
         <div className="flex items-center justify-between p-4 border-b border-dark-800">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-secondary-400" />
             <h2 className="text-lg font-semibold text-white">Generate AI Meal Plan</h2>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-dark-800"><X className="w-5 h-5 text-dark-400" /></button>
+          <button onClick={onClose} aria-label="Close modal" className="p-2 rounded-lg hover:bg-dark-800"><X className="w-5 h-5 text-dark-400" /></button>
         </div>
         <div className="p-4 space-y-4">
           <div>
@@ -146,7 +146,7 @@ function GenerateModal({ isOpen, onClose, onGenerate, isGenerating, dietType }) 
             <div className="flex gap-2">
               {[3, 4, 5, 6].map(n => (
                 <button key={n} onClick={() => setPreferences({ ...preferences, mealsPerDay: n })}
-                  className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all ${preferences.mealsPerDay === n ? 'bg-secondary-500 text-white' : 'bg-dark-800 text-dark-300 hover:bg-dark-700'}`}>
+                  className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all duration-300 ${preferences.mealsPerDay === n ? 'bg-secondary-500 text-white' : 'bg-dark-800 text-dark-300 hover:bg-dark-700'}`}>
                   {n} meals
                 </button>
               ))}
@@ -198,9 +198,9 @@ function StatCard({ icon: Icon, label, value, unit, color = 'secondary', subtext
   const textColors = { primary: 'text-primary-400', secondary: 'text-secondary-400', success: 'text-green-400', warning: 'text-yellow-400', purple: 'text-purple-400' }
 
   return (
-    <div className="card p-4">
+    <div className="card p-3 sm:p-4">
       <div className={`w-10 h-10 rounded-lg ${bgColors[color]} flex items-center justify-center mb-2`}>
-        <Icon className={`w-5 h-5 ${textColors[color]}`} />
+        <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${textColors[color]}`} />
       </div>
       <p className="text-2xl font-bold text-white">{value}<span className="text-sm text-dark-400 ml-1">{unit}</span></p>
       <p className="text-sm text-dark-400">{label}</p>
@@ -241,7 +241,7 @@ function LiveUpdateToast({ show, data, onClose }) {
               </div>
             )}
           </div>
-          <button onClick={onClose} className="p-1 rounded hover:bg-dark-700">
+          <button onClick={onClose} aria-label="Dismiss notification" className="p-1 rounded hover:bg-dark-700">
             <X className="w-4 h-4 text-dark-400" />
           </button>
         </div>
@@ -254,7 +254,7 @@ function LiveUpdateToast({ show, data, onClose }) {
 function DayCard({ day, isToday, onClick }) {
   return (
     <div onClick={onClick}
-      className={`card p-4 cursor-pointer transition-all hover:border-secondary-500/50 ${isToday ? 'border-secondary-500 bg-secondary-500/10' : ''}`}>
+      className={`card p-4 cursor-pointer transition-all duration-300 hover:border-secondary-500/50 hover:text-white ${isToday ? 'border-secondary-500 bg-secondary-500/10' : ''}`}>
       <div className="flex items-center justify-between mb-2">
         <span className={`text-sm font-medium ${isToday ? 'text-secondary-400' : 'text-dark-400'}`}>Day {day.dayNumber}</span>
         {isToday && <span className="badge-primary text-xs" style={{ background: '#F59E0B' }}>Today</span>}
@@ -409,7 +409,7 @@ export default function Diet() {
       {/* Header */}
       <div className="diet-card flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Diet Plan</h1>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">Diet Plan</h1>
           <p className="text-dark-400">AI-personalized nutrition for your goals</p>
           {goals?.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
@@ -424,7 +424,7 @@ export default function Diet() {
       </div>
 
       {/* Weekly Stats */}
-      <div className="diet-card grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="diet-card grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
         <StatCard icon={Calendar} label="Days Tracked" value={stats?.daysTracked || 0} unit="" color="secondary" />
         <StatCard icon={Flame} label="Avg Calories" value={stats?.avgCalories || 0} unit="cal" color="warning" />
         <StatCard icon={Scale} label="Avg Protein" value={stats?.avgProtein || 0} unit="g" color="primary" />

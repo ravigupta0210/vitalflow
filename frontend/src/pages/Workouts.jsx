@@ -46,11 +46,12 @@ function ExerciseCard({ exercise, index, isActive, isCompleted, onComplete, onSt
         <div className="flex items-center gap-2">
           {!isCompleted && (
             <button onClick={() => isActive ? onComplete() : onStart()}
+              aria-label={isActive ? 'Mark exercise complete' : 'Start exercise'}
               className={`p-2 rounded-lg transition-all ${isActive ? 'bg-success hover:bg-success/80 text-white' : 'bg-dark-800 hover:bg-dark-700 text-dark-300'}`}>
               {isActive ? <Check className="w-5 h-5" /> : <Play className="w-5 h-5" />}
             </button>
           )}
-          <button onClick={() => setExpanded(!expanded)} className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 transition-all">
+          <button onClick={() => setExpanded(!expanded)} aria-label="Toggle exercise details" className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none">
             {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
         </div>
@@ -169,10 +170,10 @@ function RestTimer({ duration, onComplete }) {
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-medium text-white">Rest Timer</h3>
         <div className="flex items-center gap-2">
-          <button onClick={() => setIsPaused(!isPaused)} className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 transition-all">
+          <button onClick={() => setIsPaused(!isPaused)} aria-label={isPaused ? 'Resume timer' : 'Pause timer'} className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 transition-all">
             {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
           </button>
-          <button onClick={() => setTimeLeft(duration)} className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 transition-all">
+          <button onClick={() => setTimeLeft(duration)} aria-label="Reset timer" className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 transition-all">
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
@@ -199,14 +200,14 @@ function GenerateModal({ isOpen, onClose, onGenerate, isGenerating, goals }) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-dark-900 rounded-2xl border border-dark-700 w-full max-w-lg">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-dark-900 rounded-2xl border border-dark-700 w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-300">
         <div className="flex items-center justify-between p-4 border-b border-dark-800">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary-400" />
             <h2 className="text-lg font-semibold text-white">Generate AI Workout Plan</h2>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-dark-800"><X className="w-5 h-5 text-dark-400" /></button>
+          <button onClick={onClose} aria-label="Close modal" className="p-2 rounded-lg hover:bg-dark-800"><X className="w-5 h-5 text-dark-400" /></button>
         </div>
         <div className="p-4 space-y-4">
           <div>
@@ -214,7 +215,7 @@ function GenerateModal({ isOpen, onClose, onGenerate, isGenerating, goals }) {
             <div className="flex gap-2">
               {[3, 4, 5, 6].map(d => (
                 <button key={d} onClick={() => setPreferences({ ...preferences, daysPerWeek: d })}
-                  className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all ${preferences.daysPerWeek === d ? 'bg-primary-500 text-white' : 'bg-dark-800 text-dark-300 hover:bg-dark-700'}`}>
+                  className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all duration-300 ${preferences.daysPerWeek === d ? 'bg-primary-500 text-white' : 'bg-dark-800 text-dark-300 hover:bg-dark-700'}`}>
                   {d} days
                 </button>
               ))}
@@ -267,9 +268,9 @@ function StatCard({ icon: Icon, label, value, unit, color = 'primary', subtext }
   const textColors = { primary: 'text-primary-400', success: 'text-green-400', warning: 'text-yellow-400', purple: 'text-purple-400' }
 
   return (
-    <div className="card p-4">
+    <div className="card p-3 sm:p-4">
       <div className={`w-10 h-10 rounded-lg ${bgColors[color]} flex items-center justify-center mb-2`}>
-        <Icon className={`w-5 h-5 ${textColors[color]}`} />
+        <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${textColors[color]}`} />
       </div>
       <p className="text-2xl font-bold text-white">{value}<span className="text-sm text-dark-400 ml-1">{unit}</span></p>
       <p className="text-sm text-dark-400">{label}</p>
@@ -310,7 +311,7 @@ function LiveUpdateToast({ show, data, onClose }) {
               </div>
             )}
           </div>
-          <button onClick={onClose} className="p-1 rounded hover:bg-dark-700">
+          <button onClick={onClose} aria-label="Dismiss notification" className="p-1 rounded hover:bg-dark-700">
             <X className="w-4 h-4 text-dark-400" />
           </button>
         </div>
@@ -323,7 +324,7 @@ function LiveUpdateToast({ show, data, onClose }) {
 function DayCard({ day, isToday, onClick }) {
   return (
     <div onClick={onClick}
-      className={`card p-4 cursor-pointer transition-all hover:border-primary-500/50 ${isToday ? 'border-primary-500 bg-primary-500/10' : ''}`}>
+      className={`card p-4 cursor-pointer transition-all duration-300 hover:border-primary-500/50 hover:text-white ${isToday ? 'border-primary-500 bg-primary-500/10' : ''}`}>
       <div className="flex items-center justify-between mb-2">
         <span className={`text-sm font-medium ${isToday ? 'text-primary-400' : 'text-dark-400'}`}>Day {day.dayNumber}</span>
         {isToday && <span className="badge-primary text-xs">Today</span>}
@@ -488,7 +489,7 @@ export default function Workouts() {
       {/* Header */}
       <div className="workout-card flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Workouts</h1>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">Workouts</h1>
           <p className="text-dark-400">AI-personalized training for your goals</p>
           {goals?.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
@@ -503,7 +504,7 @@ export default function Workouts() {
       </div>
 
       {/* Weekly Stats */}
-      <div className="workout-card grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="workout-card grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         <StatCard icon={Trophy} label="Weekly Workouts" value={stats?.weeklyWorkouts || 0} unit="" color="primary" />
         <StatCard icon={Timer} label="Total Time" value={stats?.totalMinutes || 0} unit="min" color="success" />
         <StatCard icon={Flame} label="Calories Burned" value={stats?.caloriesBurned || 0} unit="cal" color="warning" />

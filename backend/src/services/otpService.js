@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const db = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
 const { sendOTPEmail } = require('./emailService');
@@ -6,6 +7,29 @@ const { sendOTPSMS } = require('./smsService');
 const OTP_LENGTH = 6;
 const MAX_ATTEMPTS = 5;
 const OTP_EXPIRY_MINUTES = parseInt(process.env.OTP_EXPIRY_MINUTES) || 10;
+const OTP_COOLDOWN_SECONDS = 60;
+
+// Hash OTP with SHA-256 before storing
+function hashOTP(otp) {
+  return crypto.createHash('sha256').update(otp).digest('hex');
+}
+
+// Check rate limit - 60 second cooldown between OTP sends per identifier
+function checkRateLimit(identifier, purpose) {
+  const cooldownTime = new Date(Date.now() - OTP_COOLDOWN_SECONDS * 1000).toISOString();
+  const recentOtp = db.prepare(`
+    SELECT created_at FROM otp_tokens
+    WHERE identifier = ? AND purpose = ? AND created_at > ?
+    ORDER BY created_at DESC LIMIT 1
+  `).get(identifier, purpose, cooldownTime);
+
+  if (recentOtp) {
+    const createdAt = new Date(recentOtp.created_at).getTime();
+    const remainingSeconds = Math.ceil((createdAt + OTP_COOLDOWN_SECONDS * 1000 - Date.now()) / 1000);
+    return { limited: true, remainingSeconds };
+  }
+  return { limited: false };
+}
 
 // Generate a random OTP
 function generateOTP() {
@@ -30,13 +54,14 @@ async function createOTP(identifier, identifierType, purpose, userId = null) {
   `);
   invalidateStmt.run(identifier, identifierType, purpose);
 
-  // Create new OTP
+  // Create new OTP with hashed code
   const id = uuidv4();
+  const hashedOtp = hashOTP(otp);
   const insertStmt = db.prepare(`
     INSERT INTO otp_tokens (id, user_id, identifier, identifier_type, otp_code, purpose, expires_at)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
-  insertStmt.run(id, userId, identifier, identifierType, otp, purpose, expiresAt);
+  insertStmt.run(id, userId, identifier, identifierType, hashedOtp, purpose, expiresAt);
 
   return { otp, expiresAt, id };
 }
@@ -68,8 +93,8 @@ function verifyOTP(identifier, identifierType, otp, purpose) {
     return { valid: false, error: 'Too many failed attempts. Please request a new OTP.' };
   }
 
-  // Verify OTP
-  if (otpRecord.otp_code !== otp) {
+  // Verify OTP (compare hashed values)
+  if (otpRecord.otp_code !== hashOTP(otp)) {
     // Increment attempts
     db.prepare(`UPDATE otp_tokens SET attempts = attempts + 1 WHERE id = ?`).run(otpRecord.id);
     const remainingAttempts = MAX_ATTEMPTS - otpRecord.attempts - 1;
@@ -87,6 +112,12 @@ function verifyOTP(identifier, identifierType, otp, purpose) {
 
 // Send OTP via email
 async function sendEmailOTP(email, purpose = 'login') {
+  // Check rate limit
+  const rateCheck = checkRateLimit(email, purpose);
+  if (rateCheck.limited) {
+    return { success: false, error: `Please wait ${rateCheck.remainingSeconds} seconds before requesting another OTP.` };
+  }
+
   // Check if user exists (for login purpose)
   if (purpose === 'login') {
     const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
@@ -114,6 +145,12 @@ async function sendEmailOTP(email, purpose = 'login') {
 
 // Send OTP via SMS
 async function sendSMSOTP(phoneNumber, purpose = 'login', userId = null) {
+  // Check rate limit
+  const rateCheck = checkRateLimit(phoneNumber, purpose);
+  if (rateCheck.limited) {
+    return { success: false, error: `Please wait ${rateCheck.remainingSeconds} seconds before requesting another OTP.` };
+  }
+
   // For login, find user by phone
   if (purpose === 'login') {
     const user = db.prepare('SELECT id FROM users WHERE mobile_number = ?').get(phoneNumber);

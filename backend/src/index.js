@@ -51,6 +51,7 @@ app.use(compression({
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP for mobile compatibility
   crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false, // Allow OAuth redirects over HTTP in dev
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 

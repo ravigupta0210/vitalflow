@@ -178,7 +178,7 @@ export default function Notifications() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t('notifications_page.title')}</h1>
+          <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t('notifications_page.title')}</h1>
           <p className={`mt-1 ${isDarkMode ? 'text-dark-400' : 'text-gray-500'}`}>
             {unreadCount > 0
               ? (unreadCount > 1
@@ -284,26 +284,26 @@ export default function Notifications() {
                     !notification.is_read
                       ? 'bg-primary-500/5'
                       : ''
-                  } ${isDarkMode ? 'hover:bg-dark-800/30' : 'hover:bg-gray-50'}`}
+                  } ${isDarkMode ? 'hover:bg-dark-800/50' : 'hover:bg-gray-50'}`}
                 >
                   <div className="flex items-start gap-4">
                     {/* Icon */}
                     <div className={`p-2.5 rounded-xl ${getTypeColor(notification.type)}`}>
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <h3 className={`font-medium ${
+                          <h3 className={`font-medium truncate ${
                             !notification.is_read
                               ? (isDarkMode ? 'text-white' : 'text-gray-900')
                               : (isDarkMode ? 'text-dark-300' : 'text-gray-600')
                           }`}>
                             {notification.title}
                           </h3>
-                          <p className={`text-sm mt-0.5 ${isDarkMode ? 'text-dark-400' : 'text-gray-500'}`}>
+                          <p className={`text-sm mt-0.5 line-clamp-2 ${isDarkMode ? 'text-dark-400' : 'text-gray-500'}`}>
                             {notification.message}
                           </p>
                         </div>

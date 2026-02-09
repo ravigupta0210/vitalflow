@@ -173,10 +173,10 @@ api.interceptors.response.use(
         isRefreshing = false
         onTokenRefreshFailed(refreshError)
 
-        // Refresh failed - clear tokens and redirect to login
+        // Refresh failed - clear tokens and dispatch event for React to handle
         await AuthStorage.clearAuth()
         cachedAccessToken = null
-        window.location.href = '/login'
+        window.dispatchEvent(new CustomEvent('auth:session-expired'))
         return Promise.reject(refreshError)
       }
     }

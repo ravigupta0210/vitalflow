@@ -11,10 +11,18 @@ router.post('/refresh-token', authController.refreshToken);
 router.post('/logout', authController.logout);
 
 // Google OAuth routes
-router.get('/google', passport.authenticate('google', {
-  scope: ['profile', 'email'],
-  session: false
-}));
+router.get('/google', (req, res, next) => {
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false
+  })(req, res, (err) => {
+    if (err) {
+      console.error('Google OAuth initiation error:', err.message);
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
+    next();
+  });
+});
 
 router.get('/google/callback',
   passport.authenticate('google', {

@@ -23,27 +23,28 @@ router.get('/', requireOnboarding, (req, res) => {
       return res.json({ success: true, data: cached, cached: true });
     }
 
-    const profile = db.prepare('SELECT * FROM user_profiles WHERE user_id = ?').get(userId);
-    const goals = db.prepare('SELECT * FROM health_goals WHERE user_id = ? ORDER BY priority').all(userId);
-    const recentInsights = db.prepare(`
-      SELECT * FROM health_insights WHERE user_id = ?
-      ORDER BY created_at DESC LIMIT 5
-    `).all(userId);
-
-    // Get today's metrics
+    // Wrap all reads in a transaction for consistency
     const today = new Date().toISOString().split('T')[0];
-    const todayMetrics = db.prepare(`
-      SELECT * FROM health_metrics WHERE user_id = ? AND date = ?
-    `).get(userId, today);
+    const getDashboardData = db.transaction((uid) => {
+      const profile = db.prepare('SELECT * FROM user_profiles WHERE user_id = ?').get(uid);
+      const goals = db.prepare('SELECT * FROM health_goals WHERE user_id = ? ORDER BY priority').all(uid);
+      const recentInsights = db.prepare(`
+        SELECT * FROM health_insights WHERE user_id = ?
+        ORDER BY created_at DESC LIMIT 5
+      `).all(uid);
+      const todayMetrics = db.prepare(`
+        SELECT * FROM health_metrics WHERE user_id = ? AND date = ?
+      `).get(uid, today);
+      const activeWorkout = db.prepare(`
+        SELECT * FROM workout_plans WHERE user_id = ? AND is_active = 1 LIMIT 1
+      `).get(uid);
+      const activeDiet = db.prepare(`
+        SELECT * FROM diet_plans WHERE user_id = ? AND is_active = 1 LIMIT 1
+      `).get(uid);
+      return { profile, goals, recentInsights, todayMetrics, activeWorkout, activeDiet };
+    });
 
-    // Get active workout and diet plans
-    const activeWorkout = db.prepare(`
-      SELECT * FROM workout_plans WHERE user_id = ? AND is_active = 1 LIMIT 1
-    `).get(userId);
-
-    const activeDiet = db.prepare(`
-      SELECT * FROM diet_plans WHERE user_id = ? AND is_active = 1 LIMIT 1
-    `).get(userId);
+    const { profile, goals, recentInsights, todayMetrics, activeWorkout, activeDiet } = getDashboardData(userId);
 
     const data = {
       healthScore: calculateHealthScore(profile, goals, todayMetrics),
@@ -452,22 +453,23 @@ router.get('/comprehensive', requireOnboarding, async (req, res) => {
       return res.json({ success: true, data: cached, cached: true });
     }
 
-    // Get all user data in parallel using Promise.all pattern
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
-    const profile = db.prepare('SELECT * FROM user_profiles WHERE user_id = ?').get(userId);
-    const goals = db.prepare('SELECT * FROM health_goals WHERE user_id = ? ORDER BY priority').all(userId);
-    const conditions = db.prepare('SELECT * FROM medical_conditions WHERE user_id = ?').all(userId);
-    const questionnaire = db.prepare('SELECT * FROM goal_questionnaires WHERE user_id = ?').all(userId);
+    // Wrap all reads in a transaction for consistency
+    const getComprehensiveData = db.transaction((uid) => {
+      const user = db.prepare('SELECT * FROM users WHERE id = ?').get(uid);
+      const profile = db.prepare('SELECT * FROM user_profiles WHERE user_id = ?').get(uid);
+      const goals = db.prepare('SELECT * FROM health_goals WHERE user_id = ? ORDER BY priority').all(uid);
+      const conditions = db.prepare('SELECT * FROM medical_conditions WHERE user_id = ?').all(uid);
+      const questionnaire = db.prepare('SELECT * FROM goal_questionnaires WHERE user_id = ?').all(uid);
+      const metricsHistory = db.prepare(`
+        SELECT * FROM health_metrics WHERE user_id = ?
+        AND date >= date('now', '-30 days') ORDER BY date ASC
+      `).all(uid);
+      const activeWorkout = db.prepare(`SELECT * FROM workout_plans WHERE user_id = ? AND is_active = 1 LIMIT 1`).get(uid);
+      const activeDiet = db.prepare(`SELECT * FROM diet_plans WHERE user_id = ? AND is_active = 1 LIMIT 1`).get(uid);
+      return { user, profile, goals, conditions, questionnaire, metricsHistory, activeWorkout, activeDiet };
+    });
 
-    // Get metrics history (last 30 days)
-    const metricsHistory = db.prepare(`
-      SELECT * FROM health_metrics WHERE user_id = ?
-      AND date >= date('now', '-30 days') ORDER BY date ASC
-    `).all(userId);
-
-    // Get active plans
-    const activeWorkout = db.prepare(`SELECT * FROM workout_plans WHERE user_id = ? AND is_active = 1 LIMIT 1`).get(userId);
-    const activeDiet = db.prepare(`SELECT * FROM diet_plans WHERE user_id = ? AND is_active = 1 LIMIT 1`).get(userId);
+    const { user, profile, goals, conditions, questionnaire, metricsHistory, activeWorkout, activeDiet } = getComprehensiveData(userId);
 
     // Build user context for AI
     const userContext = {

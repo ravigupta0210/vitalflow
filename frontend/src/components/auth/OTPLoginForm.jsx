@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Mail, Phone, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react'
 import OTPInput from './OTPInput'
 import api from '../../services/api'
@@ -11,6 +11,16 @@ export default function OTPLoginForm({ onSuccess }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [expiresAt, setExpiresAt] = useState(null)
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const cooldownRef = useRef(null)
+
+  // Cooldown timer
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      cooldownRef.current = setTimeout(() => setResendCooldown(prev => prev - 1), 1000)
+      return () => clearTimeout(cooldownRef.current)
+    }
+  }, [resendCooldown])
 
   const handleSendOTP = async (e) => {
     e.preventDefault()
@@ -31,6 +41,7 @@ export default function OTPLoginForm({ onSuccess }) {
       if (response.data.success) {
         setStep('otp')
         setExpiresAt(response.data.expiresAt)
+        setResendCooldown(60) // Start 60 second cooldown
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to send OTP. Please try again.')
@@ -57,11 +68,7 @@ export default function OTPLoginForm({ onSuccess }) {
       })
 
       if (response.data.success) {
-        // Store tokens
-        localStorage.setItem('accessToken', response.data.accessToken)
-        localStorage.setItem('refreshToken', response.data.refreshToken)
-
-        // Call success callback with user data
+        // Call success callback with response data (tokens handled by AuthContext)
         onSuccess(response.data)
       }
     } catch (err) {
@@ -224,10 +231,10 @@ export default function OTPLoginForm({ onSuccess }) {
               <button
                 type="button"
                 onClick={handleResendOTP}
-                disabled={isLoading}
-                className="text-primary-400 hover:text-primary-300 font-medium disabled:opacity-50"
+                disabled={isLoading || resendCooldown > 0}
+                className="text-primary-400 hover:text-primary-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Resend
+                {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend'}
               </button>
             </p>
           </form>

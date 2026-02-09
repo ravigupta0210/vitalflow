@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { gsap } from 'gsap'
@@ -28,7 +28,7 @@ const COLORS = ['#14B8A6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
 const BMI_COLORS = { green: '#22C55E', yellow: '#EAB308', orange: '#F97316', red: '#EF4444', gray: '#6B7280' }
 
 // Circular progress component
-function CircularProgress({ value, max, size = 120, strokeWidth = 8, color = 'primary', label }) {
+const CircularProgress = memo(function CircularProgress({ value, max, size = 120, strokeWidth = 8, color = 'primary', label }) {
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const progress = Math.min(value / max, 1)
@@ -49,15 +49,15 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 8, color = 'pr
       </div>
     </div>
   )
-}
+})
 
 // Stat card component
-function StatCard({ icon: Icon, label, value, unit, subtext, color = 'primary', trend }) {
+const StatCard = memo(function StatCard({ icon: Icon, label, value, unit, subtext, color = 'primary', trend }) {
   const bgColors = { primary: 'bg-primary-500/20', success: 'bg-green-500/20', warning: 'bg-yellow-500/20', error: 'bg-red-500/20', purple: 'bg-purple-500/20' }
   const textColors = { primary: 'text-primary-400', success: 'text-green-400', warning: 'text-yellow-400', error: 'text-red-400', purple: 'text-purple-400' }
 
   return (
-    <div className="card p-2.5 sm:p-3 lg:p-4">
+    <div className="card p-3 sm:p-4">
       <div className="flex items-start justify-between mb-1.5 sm:mb-2">
         <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${bgColors[color]} flex items-center justify-center`}>
           <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${textColors[color]}`} />
@@ -69,7 +69,7 @@ function StatCard({ icon: Icon, label, value, unit, subtext, color = 'primary', 
       {subtext && <p className="text-[10px] sm:text-xs text-dark-500 mt-0.5 sm:mt-1 truncate">{subtext}</p>}
     </div>
   )
-}
+})
 
 // Profile Edit Modal
 function ProfileEditModal({ isOpen, onClose, profile, onSave }) {
@@ -111,11 +111,11 @@ function ProfileEditModal({ isOpen, onClose, profile, onSave }) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-dark-900 rounded-2xl border border-dark-700 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-dark-900 rounded-2xl border border-dark-700 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
         <div className="flex items-center justify-between p-4 border-b border-dark-800">
           <h2 className="text-lg font-semibold text-white">Edit Profile</h2>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-dark-800"><X className="w-5 h-5 text-dark-400" /></button>
+          <button onClick={onClose} aria-label="Close modal" className="p-2 rounded-lg hover:bg-dark-800"><X className="w-5 h-5 text-dark-400" /></button>
         </div>
         <div className="p-4 space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -176,7 +176,7 @@ function ProfileEditModal({ isOpen, onClose, profile, onSave }) {
 }
 
 // AI Insight Card
-function InsightCard({ insight }) {
+const InsightCard = memo(function InsightCard({ insight }) {
   const icons = { health: Heart, nutrition: Apple, fitness: Dumbbell, lifestyle: Moon, warning: AlertCircle }
   const colors = { high: 'border-red-500/50 bg-red-500/10', normal: 'border-primary-500/50 bg-primary-500/10', low: 'border-dark-700 bg-dark-800/50' }
   const Icon = icons[insight.type] || Sparkles
@@ -195,15 +195,15 @@ function InsightCard({ insight }) {
       </div>
     </div>
   )
-}
+})
 
 // Streak Display Component
-function StreakCard({ type, current, longest, icon: Icon, color = 'primary' }) {
+const StreakCard = memo(function StreakCard({ type, current, longest, icon: Icon, color = 'primary' }) {
   const bgColors = { primary: 'bg-primary-500/20', success: 'bg-green-500/20', warning: 'bg-yellow-500/20' }
   const textColors = { primary: 'text-primary-400', success: 'text-green-400', warning: 'text-yellow-400' }
 
   return (
-    <div className="card p-2.5 sm:p-3 lg:p-4">
+    <div className="card p-3 sm:p-4">
       <div className="flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
         <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${bgColors[color]} flex items-center justify-center flex-shrink-0`}>
           <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${textColors[color]}`} />
@@ -219,10 +219,10 @@ function StreakCard({ type, current, longest, icon: Icon, color = 'primary' }) {
       </div>
     </div>
   )
-}
+})
 
 // Live Progress Bar Component
-function LiveProgressBar({ label, current, target, unit = '', color = 'primary' }) {
+const LiveProgressBar = memo(function LiveProgressBar({ label, current, target, unit = '', color = 'primary' }) {
   const percentage = target > 0 ? Math.min(100, (current / target) * 100) : 0
 
   return (
@@ -239,7 +239,7 @@ function LiveProgressBar({ label, current, target, unit = '', color = 'primary' 
       </div>
     </div>
   )
-}
+})
 
 export default function Dashboard() {
   const { t } = useTranslation()
@@ -283,9 +283,12 @@ export default function Dashboard() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [])
 
-  // GSAP animations
+  // GSAP animations (respects reduced motion preference)
   useEffect(() => {
     if (!isLoading && containerRef.current) {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (prefersReducedMotion) return
+
       const ctx = gsap.context(() => {
         gsap.from('.dashboard-card', { opacity: 0, y: 20, stagger: 0.08, duration: 0.5, ease: 'power3.out' })
       }, containerRef)
@@ -334,7 +337,7 @@ export default function Dashboard() {
       {/* Header with Health Score */}
       <div className="dashboard-card flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className={`text-2xl lg:text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             {t('dashboard.welcome')}, {dashboardData?.user?.name || user?.firstName || 'there'}!
           </h1>
           <p className={isDarkMode ? 'text-dark-400' : 'text-gray-500'}>Here's your personalized health dashboard</p>
@@ -410,7 +413,7 @@ export default function Dashboard() {
         </div>
 
         {/* Today's Activity Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
           {/* Workout Progress */}
           <div className="p-4 rounded-xl bg-dark-800/50 border border-dark-700">
             <div className="flex items-center gap-2 mb-3">
@@ -485,10 +488,10 @@ export default function Dashboard() {
       {/* Profile Overview & Goals */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile Summary */}
-        <div className={`dashboard-card card p-6 ${isDarkMode ? '' : 'bg-white border-gray-200'}`}>
+        <div className={`dashboard-card card p-4 sm:p-6 ${isDarkMode ? '' : 'bg-white border-gray-200'}`}>
           <div className="flex items-center justify-between mb-4">
             <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t('profile.personal_info')}</h2>
-            <button onClick={() => setShowEditModal(true)} className="text-primary-400 hover:text-primary-300">
+            <button onClick={() => setShowEditModal(true)} aria-label="Edit profile" className="text-primary-400 hover:text-primary-300">
               <Edit3 className="w-4 h-4" />
             </button>
           </div>
@@ -548,9 +551,10 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-dark-400">
-              <Target className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>No goals set yet</p>
+            <div className="p-12 text-center">
+              <Target className="w-12 h-12 mx-auto mb-3 text-dark-600" />
+              <h3 className="text-base font-medium text-white mb-1">No goals set yet</h3>
+              <p className="text-sm text-dark-400">Set health goals in your profile to track progress</p>
             </div>
           )}
 
@@ -573,10 +577,10 @@ export default function Dashboard() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Macro Distribution Pie Chart */}
-        <div className="dashboard-card card p-6">
+        <div className="dashboard-card card p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-white mb-4">Daily Macro Target</h2>
           {macroData.length > 0 ? (
-            <div className="h-64">
+            <div className="h-48 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={macroData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={2} dataKey="value" label={({ name, value }) => `${name}: ${value}g`}>
@@ -588,15 +592,15 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 flex items-center justify-center text-dark-400">No data available</div>
+            <div className="h-48 sm:h-64 flex items-center justify-center text-dark-400">No data available</div>
           )}
         </div>
 
         {/* Activity Breakdown Radar */}
-        <div className="dashboard-card card p-6">
+        <div className="dashboard-card card p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-white mb-4">Activity Breakdown</h2>
           {activityData.length > 0 ? (
-            <div className="h-64">
+            <div className="h-48 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={activityData}>
                   <PolarGrid stroke="#374151" />
@@ -608,14 +612,14 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 flex items-center justify-center text-dark-400">No data available</div>
+            <div className="h-48 sm:h-64 flex items-center justify-center text-dark-400">No data available</div>
           )}
         </div>
       </div>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Link to="/workouts" className="dashboard-card card p-4 flex items-center gap-4 hover:border-primary-500/50 transition-colors">
+        <Link to="/workouts" className="dashboard-card card p-4 flex items-center gap-4 hover:border-primary-500/50 hover:text-white transition-all duration-300">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
             <Dumbbell className="w-6 h-6 text-white" />
           </div>
@@ -626,7 +630,7 @@ export default function Dashboard() {
           <ChevronRight className="w-5 h-5 text-dark-500" />
         </Link>
 
-        <Link to="/diet" className="dashboard-card card p-4 flex items-center gap-4 hover:border-secondary-500/50 transition-colors">
+        <Link to="/diet" className="dashboard-card card p-4 flex items-center gap-4 hover:border-secondary-500/50 hover:text-white transition-all duration-300">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary-500 to-secondary-600 flex items-center justify-center">
             <Utensils className="w-6 h-6 text-white" />
           </div>

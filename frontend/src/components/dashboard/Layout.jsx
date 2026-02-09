@@ -85,6 +85,7 @@ export default function DashboardLayout() {
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
+              aria-label="Close sidebar"
               className={`lg:hidden ${isDarkMode ? 'text-dark-400 hover:text-white' : 'text-gray-400 hover:text-gray-900'}`}
             >
               <X className="w-6 h-6" />
@@ -157,6 +158,7 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
               className={`lg:hidden ${isDarkMode ? 'text-dark-400 hover:text-white' : 'text-gray-400 hover:text-gray-900'}`}
             >
               <Menu className="w-6 h-6" />
@@ -169,6 +171,7 @@ export default function DashboardLayout() {
             {/* Notifications */}
             <button
               onClick={() => navigate('/notifications')}
+              aria-label="View notifications"
               className={`relative p-2 rounded-lg transition-all ${
                 location.pathname === '/notifications'
                   ? 'text-primary-400 ' + (isDarkMode ? 'bg-dark-800/50' : 'bg-gray-100')
@@ -184,6 +187,7 @@ export default function DashboardLayout() {
             {/* Settings */}
             <button
               onClick={() => navigate('/settings')}
+              aria-label="Open settings"
               className={`p-2 rounded-lg transition-all ${
                 location.pathname === '/settings'
                   ? 'text-primary-400 ' + (isDarkMode ? 'bg-dark-800/50' : 'bg-gray-100')
@@ -199,6 +203,7 @@ export default function DashboardLayout() {
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
+                aria-label="Toggle user menu"
                 className={`flex items-center gap-2 p-2 rounded-lg transition-all ${
                   isDarkMode ? 'hover:bg-dark-800/50' : 'hover:bg-gray-100'
                 }`}

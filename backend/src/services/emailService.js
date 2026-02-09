@@ -4,35 +4,52 @@ const fs = require('fs');
 
 // Create reusable transporter
 let transporter = null;
+let initPromise = null;
 
-function initializeTransporter() {
+const SEND_TIMEOUT = 30000; // 30 second timeout for sending
+
+async function initializeTransporter() {
+  // Return cached transporter if already initialized
   if (transporter) return transporter;
 
-  // Check if email credentials are configured
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    console.warn('⚠️ Email credentials not configured. Email service will be disabled.');
-    return null;
-  }
+  // Deduplicate initialization - return existing promise if in progress
+  if (initPromise) return initPromise;
 
-  transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
+  initPromise = (async () => {
+    // Check if email credentials are configured
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.warn('⚠️ Email credentials not configured. Email service will be disabled.');
+      initPromise = null;
+      return null;
     }
-  });
 
-  // Verify connection
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error('❌ Email transporter verification failed:', error.message);
-      transporter = null;
-    } else {
+    const transport = nodemailer.createTransport({
+      service: process.env.EMAIL_SERVICE || 'gmail',
+      pool: true,
+      maxConnections: 3,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+      }
+    });
+
+    // Verify connection with promise-based approach
+    try {
+      await transport.verify();
       console.log('✅ Email service ready');
+      transporter = transport;
+      return transporter;
+    } catch (error) {
+      console.error('❌ Email transporter verification failed:', error.message);
+      initPromise = null;
+      return null;
     }
-  });
+  })();
 
-  return transporter;
+  return initPromise;
 }
 
 // Load email template
@@ -57,9 +74,9 @@ function processTemplate(template, variables) {
   return processed;
 }
 
-// Send email
+// Send email with timeout
 async function sendEmail({ to, subject, html, text }) {
-  const transport = initializeTransporter();
+  const transport = await initializeTransporter();
 
   if (!transport) {
     console.warn('Email service not configured. Skipping email send.');
@@ -75,11 +92,23 @@ async function sendEmail({ to, subject, html, text }) {
       text: text || html.replace(/<[^>]*>/g, '') // Fallback text version
     };
 
-    const info = await transport.sendMail(mailOptions);
+    // Wrap sendMail with timeout
+    const info = await Promise.race([
+      transport.sendMail(mailOptions),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Email send timed out after 30s')), SEND_TIMEOUT)
+      )
+    ]);
+
     console.log(`✅ Email sent to ${to}: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ Failed to send email:', error);
+    // Reset transporter on connection errors so next attempt creates fresh one
+    if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT' || error.message.includes('timed out')) {
+      transporter = null;
+      initPromise = null;
+    }
     return { success: false, error: error.message };
   }
 }

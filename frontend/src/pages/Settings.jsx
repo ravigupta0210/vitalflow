@@ -176,7 +176,7 @@ export default function Settings() {
       onClick={onToggle}
       disabled={disabled}
       className={`relative w-12 h-6 rounded-full transition-colors ${
-        enabled ? 'bg-primary-500' : 'bg-dark-700 dark:bg-dark-700 light:bg-gray-300'
+        enabled ? 'bg-primary-500' : 'bg-dark-700'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       <span
@@ -188,14 +188,14 @@ export default function Settings() {
   )
 
   const SettingRow = ({ icon: Icon, title, description, children }) => (
-    <div className="flex items-center justify-between py-4 border-b border-dark-800 dark:border-dark-800 light:border-gray-200 last:border-0">
+    <div className="flex items-center justify-between py-4 border-b border-dark-800 last:border-0 hover:bg-dark-800/50 -mx-2 px-2 rounded-lg transition-all duration-300">
       <div className="flex items-start gap-4">
-        <div className="p-2 bg-dark-800 dark:bg-dark-800 light:bg-gray-100 rounded-lg">
+        <div className="p-2 bg-dark-800 rounded-lg">
           <Icon className="w-5 h-5 text-primary-400" />
         </div>
         <div>
-          <h3 className="text-white dark:text-white light:text-gray-900 font-medium">{title}</h3>
-          <p className="text-sm text-dark-400 dark:text-dark-400 light:text-gray-500 mt-0.5">{description}</p>
+          <h3 className="text-white font-medium">{title}</h3>
+          <p className="text-sm text-dark-400 mt-0.5">{description}</p>
         </div>
       </div>
       {children}
@@ -207,8 +207,8 @@ export default function Settings() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white dark:text-white light:text-gray-900">{t('settings.title')}</h1>
-          <p className="text-dark-400 dark:text-dark-400 light:text-gray-500 mt-1">{t('settings.subtitle')}</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">{t('settings.title')}</h1>
+          <p className="text-dark-400 mt-1">{t('settings.subtitle')}</p>
         </div>
         <button
           onClick={handleSave}
@@ -239,10 +239,10 @@ export default function Settings() {
       )}
 
       {/* Notifications Section */}
-      <div className="bg-dark-900/50 dark:bg-dark-900/50 light:bg-white border border-dark-800 dark:border-dark-800 light:border-gray-200 rounded-2xl p-6">
+      <div className="bg-dark-900/50 border border-dark-800 rounded-xl p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <Bell className="w-5 h-5 text-primary-400" />
-          <h2 className="text-lg font-semibold text-white dark:text-white light:text-gray-900">{t('settings.notifications')}</h2>
+          <h2 className="text-lg font-semibold text-white">{t('settings.notifications')}</h2>
         </div>
 
         <div className="space-y-1">
@@ -293,17 +293,17 @@ export default function Settings() {
       </div>
 
       {/* Phone Number Section */}
-      <div className="bg-dark-900/50 dark:bg-dark-900/50 light:bg-white border border-dark-800 dark:border-dark-800 light:border-gray-200 rounded-2xl p-6">
+      <div className="bg-dark-900/50 border border-dark-800 rounded-xl p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <Phone className="w-5 h-5 text-primary-400" />
-          <h2 className="text-lg font-semibold text-white dark:text-white light:text-gray-900">{t('settings.phone_number')}</h2>
+          <h2 className="text-lg font-semibold text-white">{t('settings.phone_number')}</h2>
           {phoneVerified && (
             <span className="px-2 py-0.5 bg-success/20 text-success text-xs rounded-full">{t('settings.verified')}</span>
           )}
         </div>
 
         <div className="space-y-4">
-          <p className="text-sm text-dark-400 dark:text-dark-400 light:text-gray-500">
+          <p className="text-sm text-dark-400">
             {t('settings.phone_desc')}
           </p>
 
@@ -314,7 +314,7 @@ export default function Settings() {
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder={t('settings.enter_phone')}
               disabled={phoneVerified}
-              className="flex-1 bg-dark-800 dark:bg-dark-800 light:bg-gray-100 border border-dark-700 dark:border-dark-700 light:border-gray-300 rounded-lg px-4 py-2 text-white dark:text-white light:text-gray-900 placeholder-dark-500 focus:outline-none focus:border-primary-500 disabled:opacity-50"
+              className="flex-1 bg-dark-800 border border-dark-700 rounded-lg px-4 py-2 text-white placeholder-dark-500 focus:outline-none focus:border-primary-500 disabled:opacity-50"
             />
             {!phoneVerified && (
               <button
@@ -336,7 +336,7 @@ export default function Settings() {
                 onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 placeholder={t('settings.enter_otp')}
                 maxLength={6}
-                className="flex-1 bg-dark-800 dark:bg-dark-800 light:bg-gray-100 border border-dark-700 dark:border-dark-700 light:border-gray-300 rounded-lg px-4 py-2 text-white dark:text-white light:text-gray-900 placeholder-dark-500 focus:outline-none focus:border-primary-500"
+                className="flex-1 bg-dark-800 border border-dark-700 rounded-lg px-4 py-2 text-white placeholder-dark-500 focus:outline-none focus:border-primary-500"
               />
               <button
                 onClick={handleVerifyPhone}
@@ -356,10 +356,10 @@ export default function Settings() {
       </div>
 
       {/* Appearance Section */}
-      <div className="bg-dark-900/50 dark:bg-dark-900/50 light:bg-white border border-dark-800 dark:border-dark-800 light:border-gray-200 rounded-2xl p-6">
+      <div className="bg-dark-900/50 border border-dark-800 rounded-xl p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <Moon className="w-5 h-5 text-primary-400" />
-          <h2 className="text-lg font-semibold text-white dark:text-white light:text-gray-900">{t('settings.appearance')}</h2>
+          <h2 className="text-lg font-semibold text-white">{t('settings.appearance')}</h2>
         </div>
 
         <div className="space-y-1">
@@ -382,7 +382,7 @@ export default function Settings() {
             <select
               value={localSettings.appearance?.language || 'en'}
               onChange={(e) => handleSelectChange('appearance', 'language', e.target.value)}
-              className="bg-dark-800 dark:bg-dark-800 light:bg-gray-100 border border-dark-700 dark:border-dark-700 light:border-gray-300 rounded-lg px-3 py-2 text-white dark:text-white light:text-gray-900 text-sm focus:outline-none focus:border-primary-500"
+              className="bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
             >
               <option value="en">English</option>
               <option value="hi">हिन्दी (Hindi)</option>
@@ -399,7 +399,7 @@ export default function Settings() {
             <select
               value={localSettings.appearance?.measurementUnit || 'metric'}
               onChange={(e) => handleSelectChange('appearance', 'measurementUnit', e.target.value)}
-              className="bg-dark-800 dark:bg-dark-800 light:bg-gray-100 border border-dark-700 dark:border-dark-700 light:border-gray-300 rounded-lg px-3 py-2 text-white dark:text-white light:text-gray-900 text-sm focus:outline-none focus:border-primary-500"
+              className="bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
             >
               <option value="metric">{t('settings.metric')}</option>
               <option value="imperial">{t('settings.imperial')}</option>
@@ -409,10 +409,10 @@ export default function Settings() {
       </div>
 
       {/* Privacy & Security Section */}
-      <div className="bg-dark-900/50 dark:bg-dark-900/50 light:bg-white border border-dark-800 dark:border-dark-800 light:border-gray-200 rounded-2xl p-6">
+      <div className="bg-dark-900/50 border border-dark-800 rounded-xl p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <Shield className="w-5 h-5 text-primary-400" />
-          <h2 className="text-lg font-semibold text-white dark:text-white light:text-gray-900">{t('settings.privacy_security')}</h2>
+          <h2 className="text-lg font-semibold text-white">{t('settings.privacy_security')}</h2>
         </div>
 
         <div className="space-y-1">
@@ -441,7 +441,7 @@ export default function Settings() {
       </div>
 
       {/* Danger Zone */}
-      <div className="bg-dark-900/50 dark:bg-dark-900/50 light:bg-white border border-error/30 rounded-2xl p-6">
+      <div className="bg-dark-900/50 border border-error/30 rounded-xl p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <Trash2 className="w-5 h-5 text-error" />
           <h2 className="text-lg font-semibold text-error">{t('settings.danger_zone')}</h2>
@@ -450,8 +450,8 @@ export default function Settings() {
         {!deleteConfirm ? (
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-white dark:text-white light:text-gray-900 font-medium">{t('settings.delete_account')}</h3>
-              <p className="text-sm text-dark-400 dark:text-dark-400 light:text-gray-500 mt-0.5">
+              <h3 className="text-white font-medium">{t('settings.delete_account')}</h3>
+              <p className="text-sm text-dark-400 mt-0.5">
                 {t('settings.delete_account_desc')}
               </p>
             </div>
@@ -464,7 +464,7 @@ export default function Settings() {
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-dark-300 dark:text-dark-300 light:text-gray-600">
+            <p className="text-dark-300">
               {t('settings.delete_confirm')}
             </p>
             <input
@@ -472,7 +472,7 @@ export default function Settings() {
               value={deletePassword}
               onChange={(e) => setDeletePassword(e.target.value)}
               placeholder={t('settings.enter_password')}
-              className="w-full bg-dark-800 dark:bg-dark-800 light:bg-gray-100 border border-dark-700 dark:border-dark-700 light:border-gray-300 rounded-lg px-4 py-2 text-white dark:text-white light:text-gray-900 placeholder-dark-500 focus:outline-none focus:border-error"
+              className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-2 text-white placeholder-dark-500 focus:outline-none focus:border-error"
             />
             <div className="flex gap-3">
               <button
@@ -480,7 +480,7 @@ export default function Settings() {
                   setDeleteConfirm(false)
                   setDeletePassword('')
                 }}
-                className="flex-1 px-4 py-2 bg-dark-800 dark:bg-dark-800 light:bg-gray-200 hover:bg-dark-700 text-white dark:text-white light:text-gray-900 rounded-lg font-medium transition-all"
+                className="flex-1 px-4 py-2 bg-dark-800 hover:bg-dark-700 text-white rounded-lg font-medium transition-all"
               >
                 {t('cancel')}
               </button>

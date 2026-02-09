@@ -34,6 +34,20 @@ export function AuthProvider({ children }) {
     initAuth()
   }, [])
 
+  // Listen for session expired events (from api.js token refresh failure)
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      clearApiCache()
+      AuthStorage.clearAuth()
+      localStorage.removeItem('vitalflow_settings')
+      setUser(null)
+      navigate('/login')
+    }
+
+    window.addEventListener('auth:session-expired', handleSessionExpired)
+    return () => window.removeEventListener('auth:session-expired', handleSessionExpired)
+  }, [navigate])
+
   // Handle deep link OAuth callback (for mobile)
   useEffect(() => {
     if (!isNative) return
@@ -131,20 +145,26 @@ export function AuthProvider({ children }) {
 
   // Handle OAuth callback (web)
   const handleOAuthCallback = async (accessToken, refreshToken, isOnboarded) => {
-    // Clear any previous cached data before OAuth login
-    clearApiCache()
+    try {
+      // Clear any previous cached data before OAuth login
+      clearApiCache()
 
-    await AuthStorage.setTokens(accessToken, refreshToken)
-    updateCachedToken(accessToken)
+      await AuthStorage.setTokens(accessToken, refreshToken)
+      updateCachedToken(accessToken)
 
-    // Fetch user data
-    const response = await api.get('/auth/me')
-    setUser(response.data.data.user)
+      // Fetch user data
+      const response = await api.get('/auth/me')
+      setUser(response.data.data.user)
 
-    if (isOnboarded === 'true') {
-      navigate('/dashboard')
-    } else {
-      navigate('/onboarding')
+      if (isOnboarded === 'true') {
+        navigate('/dashboard')
+      } else {
+        navigate('/onboarding')
+      }
+    } catch (err) {
+      console.error('OAuth callback error:', err)
+      await AuthStorage.clearTokens()
+      navigate('/login', { state: { error: 'Authentication failed. Please try again.' } })
     }
   }
 
@@ -178,8 +198,36 @@ export function AuthProvider({ children }) {
       // Clear all cached data to ensure fresh data for next user
       clearApiCache()
       await AuthStorage.clearAuth()
+      // Clear legacy unscoped settings key (user-scoped settings remain for re-login)
+      localStorage.removeItem('vitalflow_settings')
       setUser(null)
       navigate('/login')
+    }
+  }
+
+  // Login with OTP (follows same pattern as login/register)
+  const loginWithOTP = async (data) => {
+    try {
+      setError(null)
+      clearApiCache()
+
+      const { user: userData, accessToken, refreshToken } = data
+
+      await AuthStorage.setTokens(accessToken, refreshToken)
+      updateCachedToken(accessToken)
+      setUser(userData)
+
+      if (!userData.isOnboarded) {
+        navigate('/onboarding')
+      } else {
+        navigate('/dashboard')
+      }
+
+      return { success: true }
+    } catch (err) {
+      const message = err.message || 'OTP login failed'
+      setError(message)
+      return { success: false, message }
     }
   }
 
@@ -197,6 +245,7 @@ export function AuthProvider({ children }) {
       loading,
       error,
       login,
+      loginWithOTP,
       register,
       logout,
       updateUser,

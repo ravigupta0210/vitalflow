@@ -11,7 +11,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { login, error, isAuthenticated, googleLoginUrl, updateUser } = useAuth()
+  const { login, loginWithOTP, error, isAuthenticated, googleLoginUrl } = useAuth()
   const navigate = useNavigate()
 
   // Refs for GSAP animations
@@ -26,10 +26,12 @@ export default function Login() {
     }
   }, [isAuthenticated, navigate])
 
-  // GSAP entrance animations
+  // GSAP entrance animations (respects reduced motion preference)
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
     const ctx = gsap.context(() => {
-      // Hero section animation
       gsap.from(heroRef.current?.children || [], {
         opacity: 0,
         y: 30,
@@ -38,7 +40,6 @@ export default function Login() {
         ease: 'power3.out'
       })
 
-      // Form animation
       gsap.from(formRef.current, {
         opacity: 0,
         x: 30,
@@ -59,24 +60,16 @@ export default function Login() {
   }
 
   const handleOTPSuccess = (data) => {
-    // Update auth context with user data
-    if (updateUser) {
-      updateUser(data.user)
-    }
-    // Navigate based on onboarding status
-    if (data.user.isOnboarded) {
-      navigate('/dashboard')
-    } else {
-      navigate('/onboarding')
-    }
+    // Use proper auth flow (clears cache, stores tokens, updates state)
+    loginWithOTP(data)
   }
 
   return (
     <div ref={containerRef} className="min-h-screen-safe bg-dark-950 flex safe-area-inset">
-      {/* Left side - Hero */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+      {/* Left side - Hero (always dark) */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden auth-hero">
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 via-dark-900 to-dark-950"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 via-[#0f172a] to-[#020617]"></div>
 
         {/* Animated circles */}
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -144,7 +137,7 @@ export default function Login() {
           {/* Google OAuth */}
           <a
             href={googleLoginUrl}
-            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 font-medium px-6 py-3 rounded-lg transition-all duration-300 mb-6"
+            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 font-medium px-6 py-3 rounded-lg border border-gray-200 transition-all duration-300 mb-6"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -233,6 +226,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-dark-500 hover:text-dark-300"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}

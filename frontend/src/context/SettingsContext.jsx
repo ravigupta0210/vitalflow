@@ -5,6 +5,14 @@ import i18n from '../i18n'
 
 const SettingsContext = createContext(null)
 
+// Detect system theme preference
+const getSystemDarkMode = () => {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+  return true // Default to dark if matchMedia not available
+}
+
 const defaultSettings = {
   notifications: {
     email: true,
@@ -13,7 +21,7 @@ const defaultSettings = {
     workoutReminders: true
   },
   appearance: {
-    darkMode: true,
+    darkMode: getSystemDarkMode(),
     language: 'en',
     measurementUnit: 'metric'
   },
@@ -24,10 +32,19 @@ const defaultSettings = {
 }
 
 export function SettingsProvider({ children }) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+
+  // Get user-scoped storage key
+  const getStorageKey = () => {
+    const userId = user?.id
+    return userId ? `vitalflow_settings_${userId}` : 'vitalflow_settings_guest'
+  }
+
   const [settings, setSettings] = useState(() => {
-    // Load from localStorage first for immediate effect
-    const saved = localStorage.getItem('vitalflow_settings')
+    // Load from user-scoped key first, then fall back to unscoped legacy key
+    const userId = user?.id
+    const scopedKey = userId ? `vitalflow_settings_${userId}` : 'vitalflow_settings_guest'
+    const saved = localStorage.getItem(scopedKey) || localStorage.getItem('vitalflow_settings')
     return saved ? JSON.parse(saved) : defaultSettings
   })
   const [loading, setLoading] = useState(false)
@@ -42,6 +59,26 @@ export function SettingsProvider({ children }) {
       document.documentElement.classList.add('light')
     }
   }, [settings.appearance.darkMode])
+
+  // Listen for system theme changes (only when user hasn't saved explicit preference)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = (e) => {
+      // Only auto-switch if there's no saved user preference
+      const saved = localStorage.getItem('vitalflow_settings')
+      if (!saved) {
+        setSettings(prev => ({
+          ...prev,
+          appearance: { ...prev.appearance, darkMode: e.matches }
+        }))
+      }
+    }
+
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
 
   // Apply language on mount and when it changes
   useEffect(() => {
@@ -62,7 +99,7 @@ export function SettingsProvider({ children }) {
       if (response.data.success) {
         const apiSettings = response.data.settings
         setSettings(apiSettings)
-        localStorage.setItem('vitalflow_settings', JSON.stringify(apiSettings))
+        localStorage.setItem(getStorageKey(), JSON.stringify(apiSettings))
       }
     } catch (err) {
       console.error('Failed to load settings:', err)
@@ -74,7 +111,7 @@ export function SettingsProvider({ children }) {
   const updateSettings = async (newSettings) => {
     // Update locally immediately
     setSettings(newSettings)
-    localStorage.setItem('vitalflow_settings', JSON.stringify(newSettings))
+    localStorage.setItem(getStorageKey(), JSON.stringify(newSettings))
 
     // Sync to backend if authenticated
     if (isAuthenticated) {

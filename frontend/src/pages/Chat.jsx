@@ -340,6 +340,7 @@ export default function Chat() {
                   </p>
                 </div>
                 <button onClick={(e) => { e.stopPropagation(); handleDeleteConversation(conv.id) }}
+                  aria-label="Delete conversation"
                   className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-error/20 text-dark-500 hover:text-error transition-all">
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -361,6 +362,7 @@ export default function Chat() {
         {/* Chat header */}
         <div className="h-14 border-b border-dark-800 flex items-center px-4 gap-3">
           <button onClick={() => setShowSidebar(!showSidebar)}
+            aria-label="Toggle chat sidebar"
             className="p-2 rounded-lg hover:bg-dark-800 text-dark-400 transition-all lg:hidden">
             <ChevronLeft className={`w-5 h-5 transition-transform ${showSidebar ? '' : 'rotate-180'}`} />
           </button>
@@ -446,6 +448,7 @@ export default function Chat() {
                 className="input w-full resize-none pr-12 text-base no-zoom" rows={1}
                 style={{ minHeight: '44px', maxHeight: '120px' }} />
               <button onClick={() => handleSendMessage()} disabled={!input.trim() || isLoading}
+                aria-label="Send message"
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 <Send className="w-5 h-5" />
               </button>

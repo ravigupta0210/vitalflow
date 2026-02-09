@@ -78,12 +78,12 @@ function ExerciseModal({ exercise, onClose }) {
   if (!exercise) return null
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-dark-900 rounded-2xl border border-dark-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+      <div className="bg-dark-900 rounded-2xl border border-dark-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
         {/* Header */}
         <div className="sticky top-0 bg-dark-900/95 backdrop-blur-sm flex items-center justify-between p-4 border-b border-dark-800 z-10">
           <h2 className="text-lg font-semibold text-white capitalize">{exercise.name}</h2>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-dark-800">
+          <button onClick={onClose} aria-label="Close modal" className="p-2 rounded-lg hover:bg-dark-800">
             <X className="w-5 h-5 text-dark-400" />
           </button>
         </div>
@@ -305,7 +305,7 @@ export default function ExerciseLibrary() {
     <div ref={containerRef} className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Exercise Library</h1>
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">Exercise Library</h1>
         <p className="text-dark-400">Browse 1,300+ exercises with video demonstrations</p>
       </div>
 
@@ -324,6 +324,7 @@ export default function ExerciseLibrary() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
+              aria-label="Clear search"
               className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-dark-700"
             >
               <X className="w-4 h-4 text-dark-400" />
@@ -384,7 +385,7 @@ export default function ExerciseLibrary() {
       ) : exercises.length > 0 ? (
         <>
           <p className="text-dark-400 text-sm">{exercises.length} exercises found</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
             {exercises.map((exercise) => (
               <div key={exercise.id} className="exercise-card">
                 <ExerciseCard

@@ -19,6 +19,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    host: true, // Bind to 0.0.0.0 for network/mobile access
     proxy: {
       '/api': {
         target: 'http://localhost:5001',
