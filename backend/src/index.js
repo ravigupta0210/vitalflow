@@ -125,6 +125,20 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Health check with config status (no secrets exposed)
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    env: {
+      EMAIL_USER: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***` : 'NOT SET',
+      EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? 'SET' : 'NOT SET',
+      EMAIL_SERVICE: process.env.EMAIL_SERVICE || 'NOT SET',
+      NODE_ENV: process.env.NODE_ENV || 'NOT SET',
+      FRONTEND_URL: process.env.FRONTEND_URL || 'NOT SET'
+    }
+  });
+});
+
 // API Routes - all user-specific data should not be cached
 // The cacheControl middleware now sets no-cache by default for security
 app.use('/api/auth', authRoutes);
