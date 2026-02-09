@@ -118,13 +118,9 @@ async function sendEmailOTP(email, purpose = 'login') {
     return { success: false, error: `Please wait ${rateCheck.remainingSeconds} seconds before requesting another OTP.` };
   }
 
-  // Check if user exists (for login purpose)
-  if (purpose === 'login') {
-    const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
-    if (!user) {
-      return { success: false, error: 'No account found with this email.' };
-    }
-  }
+  // Check if user exists to include in response (but allow OTP for new users too)
+  const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+  const isNewUser = !existingUser;
 
   const { otp, expiresAt } = await createOTP(email, 'email', purpose);
   const result = await sendOTPEmail(email, otp, purpose);
@@ -132,8 +128,9 @@ async function sendEmailOTP(email, purpose = 'login') {
   if (result.success) {
     return {
       success: true,
-      message: 'OTP sent to your email.',
-      expiresAt
+      message: isNewUser ? 'OTP sent to your email. A new account will be created.' : 'OTP sent to your email.',
+      expiresAt,
+      isNewUser
     };
   }
 

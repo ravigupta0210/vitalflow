@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { v4: uuidv4 } = require('uuid');
 const { sendEmailOTP, sendSMSOTP, verifyOTP } = require('../services/otpService');
 const { generateTokens } = require('../middleware/auth');
 
@@ -35,7 +36,8 @@ const sendEmailOTPController = async (req, res) => {
     res.json({
       success: true,
       message: result.message,
-      expiresAt: result.expiresAt
+      expiresAt: result.expiresAt,
+      isNewUser: result.isNewUser || false
     });
   } catch (error) {
     console.error('Send email OTP error:', error);
@@ -122,10 +124,27 @@ const verifyOTPAndLogin = async (req, res) => {
 
     // Find user
     let user;
+    let isNewUser = false;
     if (identifierType === 'email') {
       user = db.prepare('SELECT * FROM users WHERE email = ?').get(identifier);
     } else {
       user = db.prepare('SELECT * FROM users WHERE mobile_number = ?').get(identifier);
+    }
+
+    // Auto-create account if user doesn't exist (OTP-verified registration)
+    if (!user && identifierType === 'email') {
+      const userId = uuidv4();
+      const emailName = identifier.split('@')[0];
+      // Capitalize first letter of email prefix as first name
+      const firstName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+
+      db.prepare(`
+        INSERT INTO users (id, email, first_name, role, is_onboarded, onboarding_step)
+        VALUES (?, ?, ?, 'user', 0, 0)
+      `).run(userId, identifier.toLowerCase(), firstName);
+
+      user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+      isNewUser = true;
     }
 
     if (!user) {
@@ -145,7 +164,8 @@ const verifyOTPAndLogin = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Login successful',
+      message: isNewUser ? 'Account created successfully' : 'Login successful',
+      isNewUser,
       user: {
         id: user.id,
         email: user.email,

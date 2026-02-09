@@ -12,6 +12,7 @@ export default function OTPLoginForm({ onSuccess }) {
   const [error, setError] = useState(null)
   const [expiresAt, setExpiresAt] = useState(null)
   const [resendCooldown, setResendCooldown] = useState(0)
+  const [isNewUser, setIsNewUser] = useState(false)
   const cooldownRef = useRef(null)
 
   // Cooldown timer
@@ -41,6 +42,7 @@ export default function OTPLoginForm({ onSuccess }) {
       if (response.data.success) {
         setStep('otp')
         setExpiresAt(response.data.expiresAt)
+        setIsNewUser(response.data.isNewUser || false)
         setResendCooldown(60) // Start 60 second cooldown
       }
     } catch (err) {
@@ -196,6 +198,11 @@ export default function OTPLoginForm({ onSuccess }) {
               We sent a verification code to
             </p>
             <p className="text-white font-medium">{identifier}</p>
+            {isNewUser && (
+              <p className="text-primary-400 text-sm mt-2">
+                New account will be created after verification
+              </p>
+            )}
           </div>
 
           <form onSubmit={handleVerifyOTP}>
@@ -220,7 +227,7 @@ export default function OTPLoginForm({ onSuccess }) {
                 </>
               ) : (
                 <>
-                  Verify & Sign In
+                  {isNewUser ? 'Verify & Create Account' : 'Verify & Sign In'}
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
