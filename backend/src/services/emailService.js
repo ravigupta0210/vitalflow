@@ -44,6 +44,7 @@ async function initializeTransporter() {
       return transporter;
     } catch (error) {
       console.error('❌ Email transporter verification failed:', error.message);
+      console.error('Check EMAIL_USER and EMAIL_PASSWORD env vars. Gmail App Passwords need spaces (e.g., "xxxx xxxx xxxx xxxx").');
       initPromise = null;
       return null;
     }
@@ -79,8 +80,12 @@ async function sendEmail({ to, subject, html, text }) {
   const transport = await initializeTransporter();
 
   if (!transport) {
-    console.warn('Email service not configured. Skipping email send.');
-    return { success: false, reason: 'Email service not configured' };
+    const hasCredentials = process.env.EMAIL_USER && process.env.EMAIL_PASSWORD;
+    const reason = hasCredentials
+      ? 'Email service failed to connect. Check EMAIL_PASSWORD (Gmail App Passwords need spaces).'
+      : 'Email service not configured';
+    console.warn(reason);
+    return { success: false, reason };
   }
 
   try {
