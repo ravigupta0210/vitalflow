@@ -2,23 +2,51 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 
-// Create reusable transporter
+// Email provider: 'resend' (HTTP API, works on Render) or 'smtp' (Gmail, local dev)
+const EMAIL_PROVIDER = process.env.RESEND_API_KEY ? 'resend' : 'smtp';
+
+// SMTP transporter (for local dev with Gmail)
 let transporter = null;
 let initPromise = null;
 
-const SEND_TIMEOUT = 30000; // 30 second timeout for sending
+const SEND_TIMEOUT = 30000;
 
+// Send email via Resend HTTP API (no SMTP ports needed)
+async function sendViaResend({ to, subject, html, text }) {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: `${process.env.EMAIL_FROM_NAME || 'VitalFlow'} <${process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'}>`,
+      to: [to],
+      subject,
+      html,
+      text: text || html.replace(/<[^>]*>/g, '')
+    })
+  });
+
+  const data = await response.json();
+
+  if (response.ok) {
+    console.log(`✅ Email sent via Resend to ${to}: ${data.id}`);
+    return { success: true, messageId: data.id };
+  } else {
+    console.error('❌ Resend API error:', data);
+    return { success: false, error: data.message || 'Resend API error' };
+  }
+}
+
+// Initialize SMTP transporter (Gmail for local dev)
 async function initializeTransporter() {
-  // Return cached transporter if already initialized
   if (transporter) return transporter;
-
-  // Deduplicate initialization - return existing promise if in progress
   if (initPromise) return initPromise;
 
   initPromise = (async () => {
-    // Check if email credentials are configured
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-      console.warn('⚠️ Email credentials not configured. Email service will be disabled.');
+      console.warn('⚠️ SMTP credentials not configured.');
       initPromise = null;
       return null;
     }
@@ -36,10 +64,7 @@ async function initializeTransporter() {
       }
     });
 
-    // Skip verify() — some hosting providers (Render) have network restrictions
-    // that cause verify() to fail even with valid credentials.
-    // The transporter will fail naturally on sendMail() if credentials are wrong.
-    console.log('✅ Email service configured (user:', process.env.EMAIL_USER, ')');
+    console.log('✅ SMTP email service configured (user:', process.env.EMAIL_USER, ')');
     transporter = transport;
     return transporter;
   })();
@@ -47,10 +72,45 @@ async function initializeTransporter() {
   return initPromise;
 }
 
+// Send email via SMTP (Gmail)
+async function sendViaSMTP({ to, subject, html, text }) {
+  const transport = await initializeTransporter();
+
+  if (!transport) {
+    return { success: false, reason: 'Email service not configured' };
+  }
+
+  try {
+    const mailOptions = {
+      from: `"${process.env.EMAIL_FROM_NAME || 'VitalFlow'}" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html,
+      text: text || html.replace(/<[^>]*>/g, '')
+    };
+
+    const info = await Promise.race([
+      transport.sendMail(mailOptions),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Email send timed out after 30s')), SEND_TIMEOUT)
+      )
+    ]);
+
+    console.log(`✅ Email sent via SMTP to ${to}: ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('❌ Failed to send email via SMTP:', error.message);
+    if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT' || error.message.includes('timed out')) {
+      transporter = null;
+      initPromise = null;
+    }
+    return { success: false, error: error.message };
+  }
+}
+
 // Load email template
 function loadTemplate(templateName) {
   const templatePath = path.join(__dirname, '../templates/emails', `${templateName}.html`);
-
   try {
     return fs.readFileSync(templatePath, 'utf8');
   } catch (error) {
@@ -69,47 +129,12 @@ function processTemplate(template, variables) {
   return processed;
 }
 
-// Send email with timeout
+// Main send email function - routes to Resend or SMTP
 async function sendEmail({ to, subject, html, text }) {
-  const transport = await initializeTransporter();
-
-  if (!transport) {
-    const hasCredentials = process.env.EMAIL_USER && process.env.EMAIL_PASSWORD;
-    const reason = hasCredentials
-      ? 'Email service failed to connect. Check EMAIL_PASSWORD (Gmail App Passwords need spaces).'
-      : 'Email service not configured';
-    console.warn(reason);
-    return { success: false, reason };
+  if (EMAIL_PROVIDER === 'resend') {
+    return sendViaResend({ to, subject, html, text });
   }
-
-  try {
-    const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'VitalFlow'}" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html,
-      text: text || html.replace(/<[^>]*>/g, '') // Fallback text version
-    };
-
-    // Wrap sendMail with timeout
-    const info = await Promise.race([
-      transport.sendMail(mailOptions),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Email send timed out after 30s')), SEND_TIMEOUT)
-      )
-    ]);
-
-    console.log(`✅ Email sent to ${to}: ${info.messageId}`);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error('❌ Failed to send email:', error);
-    // Reset transporter on connection errors so next attempt creates fresh one
-    if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT' || error.message.includes('timed out')) {
-      transporter = null;
-      initPromise = null;
-    }
-    return { success: false, error: error.message };
-  }
+  return sendViaSMTP({ to, subject, html, text });
 }
 
 // Send welcome email
@@ -117,7 +142,6 @@ async function sendWelcomeEmail(user) {
   const template = loadTemplate('welcome');
 
   if (!template) {
-    // Fallback to basic HTML if template not found
     const fallbackHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #10b981;">Welcome to VitalFlow!</h1>
@@ -127,7 +151,6 @@ async function sendWelcomeEmail(user) {
         <p>Best regards,<br>The VitalFlow Team</p>
       </div>
     `;
-
     return sendEmail({
       to: user.email,
       subject: 'Welcome to VitalFlow - Your AI Health Companion',
@@ -160,7 +183,6 @@ async function sendOTPEmail(email, otp, purpose = 'login') {
   };
 
   if (!template) {
-    // Fallback to basic HTML
     const fallbackHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #10b981;">VitalFlow ${purposeText[purpose] || 'Verification'}</h1>
@@ -172,7 +194,6 @@ async function sendOTPEmail(email, otp, purpose = 'login') {
         <p style="color: #6b7280; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
       </div>
     `;
-
     return sendEmail({
       to: email,
       subject: `VitalFlow - Your ${purposeText[purpose] || 'Verification'} Code`,
@@ -213,7 +234,7 @@ async function sendNotificationEmail(user, notification) {
       </div>
       <div style="padding: 20px; background: #f9fafb; text-align: center; color: #6b7280; font-size: 12px;">
         <p>You received this email because you have email notifications enabled.</p>
-        <p>© ${new Date().getFullYear()} VitalFlow. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} VitalFlow. All rights reserved.</p>
       </div>
     </div>
   `;
@@ -224,6 +245,9 @@ async function sendNotificationEmail(user, notification) {
     html
   });
 }
+
+// Log which provider is being used
+console.log(`📧 Email provider: ${EMAIL_PROVIDER === 'resend' ? 'Resend (HTTP API)' : 'SMTP (Gmail)'}`);
 
 module.exports = {
   sendEmail,
