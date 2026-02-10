@@ -36,18 +36,12 @@ async function initializeTransporter() {
       }
     });
 
-    // Verify connection with promise-based approach
-    try {
-      await transport.verify();
-      console.log('✅ Email service ready');
-      transporter = transport;
-      return transporter;
-    } catch (error) {
-      console.error('❌ Email transporter verification failed:', error.message);
-      console.error('Check EMAIL_USER and EMAIL_PASSWORD env vars. Gmail App Passwords need spaces (e.g., "xxxx xxxx xxxx xxxx").');
-      initPromise = null;
-      return null;
-    }
+    // Skip verify() — some hosting providers (Render) have network restrictions
+    // that cause verify() to fail even with valid credentials.
+    // The transporter will fail naturally on sendMail() if credentials are wrong.
+    console.log('✅ Email service configured (user:', process.env.EMAIL_USER, ')');
+    transporter = transport;
+    return transporter;
   })();
 
   return initPromise;
