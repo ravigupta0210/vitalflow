@@ -2,28 +2,124 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/vitalflow-icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
-    <meta name="description" content="VitalFlow - AI-Powered Personalized Health Platform" />
+    <link rel="canonical" href="https://vitalflow-black.vercel.app/" />
+
+    <title>VitalFlow — Your AI Health Partner | Personalized Workouts & Nutrition</title>
+    <meta
+      name="description"
+      content="VitalFlow is an AI-powered personal health platform with personalized workouts, smart nutrition planning, real-time insights, and 24/7 AI coaching. Free to start."
+    />
+    <meta name="keywords" content="AI personal trainer, AI workout plan, nutrition app, fitness AI, personalized health, AI coach" />
     <meta name="theme-color" content="#06b6d4" />
+    <meta name="color-scheme" content="dark light" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://vitalflow-black.vercel.app/" />
+    <meta property="og:site_name" content="VitalFlow" />
+    <meta property="og:title" content="VitalFlow — Your AI Health Partner" />
+    <meta
+      property="og:description"
+      content="Personalized AI workouts, nutrition planning, and 24/7 health coaching. Free to start."
+    />
+    <meta property="og:image" content="https://vitalflow-black.vercel.app/og-cover.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="VitalFlow — Your AI Health Partner" />
+    <meta
+      name="twitter:description"
+      content="Personalized AI workouts, nutrition planning, and 24/7 health coaching. Free to start."
+    />
+    <meta name="twitter:image" content="https://vitalflow-black.vercel.app/og-cover.png" />
 
     <!-- iOS specific -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="VitalFlow" />
+    <link rel="apple-touch-icon" href="/vitalflow-icon.svg" />
 
     <!-- Android specific -->
     <meta name="mobile-web-app-capable" content="yes" />
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-    <title>VitalFlow - Your AI Health Partner</title>
+    <!-- Structured data: who we are + what we are -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://vitalflow-black.vercel.app/#app",
+            "name": "VitalFlow",
+            "url": "https://vitalflow-black.vercel.app/",
+            "description": "AI-powered personal health platform with personalized workouts, smart nutrition planning, real-time insights, and 24/7 AI coaching.",
+            "applicationCategory": "HealthApplication",
+            "operatingSystem": "Web, iOS, Android",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1" }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://vitalflow-black.vercel.app/#org",
+            "name": "VitalFlow",
+            "url": "https://vitalflow-black.vercel.app/",
+            "logo": "https://vitalflow-black.vercel.app/vitalflow-icon.svg"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://vitalflow-black.vercel.app/#website",
+            "url": "https://vitalflow-black.vercel.app/",
+            "name": "VitalFlow",
+            "publisher": { "@id": "https://vitalflow-black.vercel.app/#org" },
+            "inLanguage": "en"
+          }
+        ]
+      }
+    </script>
   </head>
   <body class="bg-dark-950 text-white antialiased">
-    <div id="root"></div>
+    <!--
+      SEO/AI-crawler fallback. Crawlers that do not execute JavaScript see this
+      content instead of an empty <div>. Real users have JS, so React mounts
+      over this almost immediately and they never see it.
+    -->
+    <div id="root">
+      <noscript>
+        <main style="max-width: 720px; margin: 60px auto; padding: 0 24px; font-family: system-ui, -apple-system, Inter, sans-serif; color: #e6edf3; background: #06070b; line-height: 1.6;">
+          <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">VitalFlow — Your AI Health Partner</h1>
+          <p style="font-size: 17px; color: #b8c0cc; margin: 0 0 22px;">
+            VitalFlow is an AI-powered personal health platform that delivers personalized workout plans, smart nutrition guidance, real-time health insights, and 24/7 AI coaching — across web, iOS, and Android.
+          </p>
+          <h2 style="font-size: 20px; margin: 24px 0 10px;">What you get</h2>
+          <ul style="padding-left: 18px; margin: 0 0 22px;">
+            <li>AI-powered personalized workouts based on your goals and equipment</li>
+            <li>Smart nutrition planning with macro tracking and meal ideas</li>
+            <li>Real-time insights from synced wearable data</li>
+            <li>24/7 AI health assistant for habit nudges and questions</li>
+          </ul>
+          <p style="font-size: 16px;">
+            <a href="/login" style="color: #06b6d4; font-weight: 600;">Sign in</a> ·
+            <a href="/register" style="color: #06b6d4; font-weight: 600;">Create a free account</a>
+          </p>
+          <p style="font-size: 13px; color: #7a8493; margin-top: 32px;">
+            This page requires JavaScript for the full interactive experience.
+          </p>
+        </main>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -1,0 +1,62 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Disallow: /dashboard
+Disallow: /workouts
+Disallow: /exercises
+Disallow: /diet
+Disallow: /chat
+Disallow: /profile
+Disallow: /settings
+Disallow: /notifications
+Disallow: /onboarding
+Disallow: /auth/
+
+User-agent: GPTBot
+Allow: /
+Allow: /login
+Allow: /register
+Disallow: /dashboard
+Disallow: /workouts
+Disallow: /exercises
+Disallow: /diet
+Disallow: /chat
+Disallow: /profile
+Disallow: /settings
+Disallow: /notifications
+Disallow: /onboarding
+Disallow: /auth/
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /login
+Allow: /register
+Disallow: /dashboard
+Disallow: /workouts
+Disallow: /exercises
+Disallow: /diet
+Disallow: /chat
+Disallow: /profile
+Disallow: /settings
+Disallow: /notifications
+Disallow: /onboarding
+Disallow: /auth/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /dashboard
+Disallow: /workouts
+Disallow: /exercises
+Disallow: /diet
+Disallow: /chat
+Disallow: /profile
+Disallow: /settings
+Disallow: /notifications
+Disallow: /onboarding
+Disallow: /auth/
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://vitalflow-black.vercel.app/sitemap.xml

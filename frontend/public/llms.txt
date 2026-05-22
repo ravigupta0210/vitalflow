@@ -1,0 +1,28 @@
+# VitalFlow
+
+> VitalFlow is an AI-powered personal health platform that delivers personalized workout plans, smart nutrition guidance, and 24/7 AI health coaching across web, iOS, and Android.
+
+## What it does
+
+VitalFlow combines AI-generated training plans with adaptive nutrition guidance and a conversational health assistant. It is designed for individuals who want a coach-in-your-pocket experience without the cost of a human trainer.
+
+## Pages
+
+- [Sign in](https://vitalflow-black.vercel.app/login): Existing users sign in with email + password, Google OAuth, or OTP.
+- [Create account](https://vitalflow-black.vercel.app/register): New users sign up to access personalized workouts and nutrition.
+
+## Features
+
+- AI-powered personalized workouts based on goals, fitness level, and equipment
+- Smart nutrition planning with macro tracking and meal suggestions
+- Real-time health insights from synced wearable data
+- 24/7 AI health assistant for questions and habit nudges
+- Mobile apps for iOS and Android via Capacitor
+
+## Authenticated areas
+
+Dashboard, workouts, exercise library, diet, chat, profile, settings, and notifications are behind authentication. These routes are intentionally excluded from search and AI indexing.
+
+## Trust
+
+Built with React, Vite, Tailwind. Hosted on Vercel with HTTPS, HSTS, and a strict Content-Security-Policy.
