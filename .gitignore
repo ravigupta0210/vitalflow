@@ -4,9 +4,6 @@ venv/
 __pycache__/
 
 # Environment files (NEVER commit secrets)
-.env
-.env.local
-.env.production
 
 # Database
 *.sqlite
@@ -28,3 +25,4 @@ frontend/ios/
 # Logs
 *.log
 npm-debug.log*
+config.bat

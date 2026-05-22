@@ -6,7 +6,7 @@
     <link rel="icon" type="image/svg+xml" href="/vitalflow-icon.svg" />
     <link rel="canonical" href="https://vitalflow-black.vercel.app/" />
 
-    <title>VitalFlow — Your AI Health Partner | Personalized Workouts & Nutrition</title>
+    <title>VitalFlow — AI Health Partner | Personalized Workouts</title>
     <meta
       name="description"
       content="VitalFlow is an AI-powered personal health platform with personalized workouts, smart nutrition planning, real-time insights, and 24/7 AI coaching. Free to start."
@@ -14,6 +14,7 @@
     <meta name="keywords" content="AI personal trainer, AI workout plan, nutrition app, fitness AI, personalized health, AI coach" />
     <meta name="theme-color" content="#06b6d4" />
     <meta name="color-scheme" content="dark light" />
+    <meta name="author" content="VitalFlow" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -55,7 +56,7 @@
       rel="stylesheet"
     />
 
-    <!-- Structured data: who we are + what we are -->
+    <!-- Structured data: WebSite + SoftwareApplication + Organization + Person -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -65,7 +66,7 @@
             "@id": "https://vitalflow-black.vercel.app/#app",
             "name": "VitalFlow",
             "url": "https://vitalflow-black.vercel.app/",
-            "description": "AI-powered personal health platform with personalized workouts, smart nutrition planning, real-time insights, and 24/7 AI coaching.",
+            "description": "VitalFlow is an AI-powered personal health platform that delivers personalized workout plans, smart nutrition guidance, real-time health insights, and 24/7 AI coaching across web, iOS, and Android.",
             "applicationCategory": "HealthApplication",
             "operatingSystem": "Web, iOS, Android",
             "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -76,7 +77,17 @@
             "@id": "https://vitalflow-black.vercel.app/#org",
             "name": "VitalFlow",
             "url": "https://vitalflow-black.vercel.app/",
-            "logo": "https://vitalflow-black.vercel.app/vitalflow-icon.svg"
+            "logo": "https://vitalflow-black.vercel.app/vitalflow-icon.svg",
+            "sameAs": [
+              "https://github.com/ravigupta0210/vitalflow",
+              "https://vitalflow-black.vercel.app/"
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "customer support",
+              "url": "https://vitalflow-black.vercel.app/login",
+              "availableLanguage": ["en"]
+            }
           },
           {
             "@type": "WebSite",
@@ -84,7 +95,21 @@
             "url": "https://vitalflow-black.vercel.app/",
             "name": "VitalFlow",
             "publisher": { "@id": "https://vitalflow-black.vercel.app/#org" },
-            "inLanguage": "en"
+            "inLanguage": "en",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://vitalflow-black.vercel.app/?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://vitalflow-black.vercel.app/#founder",
+            "name": "Ravi Gupta",
+            "url": "https://github.com/ravigupta0210",
+            "sameAs": ["https://github.com/ravigupta0210"],
+            "jobTitle": "Founder",
+            "worksFor": { "@id": "https://vitalflow-black.vercel.app/#org" }
           }
         ]
       }
@@ -92,33 +117,42 @@
   </head>
   <body class="bg-dark-950 text-white antialiased">
     <!--
-      SEO/AI-crawler fallback. Crawlers that do not execute JavaScript see this
-      content instead of an empty <div>. Real users have JS, so React mounts
-      over this almost immediately and they never see it.
+      Pre-render SEO shell. React's createRoot().render() replaces the contents
+      of #root when the JS bundle loads, so users see the real app instantly.
+      Crawlers and AI bots that do not execute JavaScript (GPTBot, ClaudeBot,
+      PerplexityBot, first-pass Googlebot) see this content and can index it.
     -->
     <div id="root">
-      <noscript>
-        <main style="max-width: 720px; margin: 60px auto; padding: 0 24px; font-family: system-ui, -apple-system, Inter, sans-serif; color: #e6edf3; background: #06070b; line-height: 1.6;">
-          <h1 style="font-size: 36px; line-height: 1.15; margin: 0 0 16px;">VitalFlow — Your AI Health Partner</h1>
-          <p style="font-size: 17px; color: #b8c0cc; margin: 0 0 22px;">
-            VitalFlow is an AI-powered personal health platform that delivers personalized workout plans, smart nutrition guidance, real-time health insights, and 24/7 AI coaching — across web, iOS, and Android.
-          </p>
-          <h2 style="font-size: 20px; margin: 24px 0 10px;">What you get</h2>
-          <ul style="padding-left: 18px; margin: 0 0 22px;">
-            <li>AI-powered personalized workouts based on your goals and equipment</li>
-            <li>Smart nutrition planning with macro tracking and meal ideas</li>
-            <li>Real-time insights from synced wearable data</li>
-            <li>24/7 AI health assistant for habit nudges and questions</li>
-          </ul>
-          <p style="font-size: 16px;">
-            <a href="/login" style="color: #06b6d4; font-weight: 600;">Sign in</a> ·
-            <a href="/register" style="color: #06b6d4; font-weight: 600;">Create a free account</a>
-          </p>
-          <p style="font-size: 13px; color: #7a8493; margin-top: 32px;">
-            This page requires JavaScript for the full interactive experience.
-          </p>
-        </main>
-      </noscript>
+      <main style="max-width: 720px; margin: 60px auto; padding: 0 24px; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #e6edf3; background: #06070b; line-height: 1.6;">
+        <p style="margin: 0 0 8px; color: #06b6d4; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">
+          VitalFlow
+        </p>
+        <h1 style="font-size: 38px; line-height: 1.1; margin: 0 0 18px; letter-spacing: -0.02em;">
+          Your AI Health Partner — Personalized Workouts &amp; Nutrition
+        </h1>
+        <p style="font-size: 17px; color: #b8c0cc; margin: 0 0 22px;">
+          VitalFlow is an AI-powered personal health platform that delivers personalized workout plans, smart nutrition guidance, real-time health insights, and 24/7 AI coaching — across web, iOS, and Android. It is free to start and adapts to your goals, fitness level, and available equipment.
+        </p>
+
+        <h2 style="font-size: 22px; margin: 28px 0 10px; letter-spacing: -0.01em;">What you get</h2>
+        <ul style="padding-left: 18px; margin: 0 0 22px; color: #cdd5ff;">
+          <li><strong>AI-powered personalized workouts</strong> based on your goals, fitness level, and equipment.</li>
+          <li><strong>Smart nutrition planning</strong> with macro tracking, meal ideas, and adaptive guidance.</li>
+          <li><strong>Real-time health insights</strong> from synced wearable data.</li>
+          <li><strong>24/7 AI health assistant</strong> for habit nudges and questions.</li>
+          <li><strong>Native mobile apps</strong> for iOS and Android via Capacitor.</li>
+        </ul>
+
+        <h2 style="font-size: 22px; margin: 28px 0 10px; letter-spacing: -0.01em;">Get started</h2>
+        <p style="font-size: 16px;">
+          <a href="/login" style="color: #06b6d4; font-weight: 600; text-decoration: none;">Sign in to your account</a> ·
+          <a href="/register" style="color: #06b6d4; font-weight: 600; text-decoration: none;">Create a free account</a>
+        </p>
+
+        <p style="font-size: 13px; color: #7a8493; margin-top: 32px;">
+          Loading the interactive experience…
+        </p>
+      </main>
     </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
